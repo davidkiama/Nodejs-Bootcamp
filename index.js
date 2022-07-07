@@ -1,9 +1,13 @@
 const http = require("http");
 const url = require("url");
+const fs = require("fs");
+const { dirname } = require("path");
+
+//To read the file just once
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const dataObj = JSON.parse(data);
 
 const server = http.createServer((req, res) => {
-  console.log(req.url);
-
   const pathName = req.url;
 
   switch (pathName) {
@@ -13,6 +17,12 @@ const server = http.createServer((req, res) => {
       break;
     case "/kiama":
       res.end("This is KIAMA");
+      break;
+    case "/api":
+      res.writeHead(200, {
+        "Content-type": "application/json",
+      });
+      res.end(data);
       break;
     default:
       res.writeHead(404, {
