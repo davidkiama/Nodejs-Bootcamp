@@ -1,7 +1,8 @@
 const http = require("http");
 const url = require("url");
 const fs = require("fs");
-const { dirname } = require("path");
+
+const replaceTemplate = require("./modules/replaceTemplate");
 
 //To read the file just once
 // We can read it synchronously since its top level code
@@ -12,23 +13,6 @@ const templateProduct = fs.readFileSync(`${__dirname}/templates/template-product
 
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObj = JSON.parse(data);
-
-const replaceTemplate = (template, product) => {
-  let output = template;
-
-  output = output.replaceAll("{%PRODUCTNAME%}", product.productName);
-  output = output.replaceAll("{%IMAGE%}", product.image);
-  output = output.replaceAll("{%QUANTITY%}", product.quantity);
-  output = output.replaceAll("{%PRICE%}", product.price);
-  output = output.replaceAll("{%FROM%}", product.from);
-  output = output.replaceAll("{%NUTRIENTS%}", product.nutrients);
-  output = output.replaceAll("{%DESCRIPTION%}", product.description);
-  output = output.replaceAll("{%ID%}", product.id);
-
-  if (!product.organic) output = output.replaceAll("{%NOT_ORGANIC%}", "not-organic");
-
-  return output;
-};
 
 const server = http.createServer((req, res) => {
   const { query, pathname } = url.parse(req.url, true);
@@ -45,8 +29,8 @@ const server = http.createServer((req, res) => {
       break;
     case "/product":
       res.writeHead(200, { "Content-type": "text/html" });
-      const product = dataObj[query.id];
 
+      const product = dataObj[query.id];
       const output2 = replaceTemplate(templateProduct, product);
 
       res.end(output2);
